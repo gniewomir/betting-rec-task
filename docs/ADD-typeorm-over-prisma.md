@@ -31,8 +31,10 @@
   * I know I can get tests enclosed in transaction for parallel testing running in TypeORM
   * There were attempts to do the same for Prisma, but topic is notoriously tricky, and checking it out is outside scope of this recruitment task
 * Maturity
-  * TypeORM mature but it's future is unclear 
-  * On the market for the last 7 years
+  * TypeORM mature but it's future is unclear
+    * Changes in Governance give some hope though
+  * Prisma is the market for the last 7 years
+    * But most useful parts related to raw queries are still experimental   
     * TypedSQL a year or two? 
 
 Overall impression is, that Prisma solves problems for fast prototyping, but for production problems it offers half-baked solutions, that work reliably only with assumption that you are doing simple things in a simple way or are willing to work around limitations. 

@@ -1,7 +1,7 @@
-# Gaps in specification
+# Gaps in PRD
 
 ## Technical/Architectural concerns
-* Specification mentions "minimal backend", but other communication suggests production-grade code
+* PRD mentions "minimal backend", but other communication suggests production-grade code
   * Minimal would assume using simplest possibile structure with business logic enclosed in nest services, validation and database constraints
     * It would allow to keep all sensitive operations atomic, without concern about maintainability of this code
   * Production grade, would assume unit-testable separate domain layer, potentially CQRS to enforce gathering of proper audit trails
@@ -19,7 +19,7 @@
 
 ## Security
 * It seems to be implied, that `bets` service should also handle customer account and balance
-    * If so, I will also assume, that user management (not to be confused with consumer management), authentication/authorization is out of scope for the project
+    * If so, I will also assume, that user management (not to be confused with consumer management - which seems to be also delegated to fixtures), authentication/authorization is out of scope for the project
 * Should project take precautions, when it comes to concurrency management?
     * Yes, I assume it is in scope - even demo project should not allow for double-spend, withdraw-and-spend etc. vulnerabilities
 * No requirements when it comes to simulated outcome randomness 
@@ -42,7 +42,7 @@
         * I assume it is out of scope
 * Should project suport live bets? Or only pre-event bets?
     * I assume the latter - so live betting during event is out of scope
-        * Odds source seems to depend on what was scraped, fetched from api on unclear schedule
+        * Odds source seems to depend on what was scraped/fetched from api on unclear schedule
             * It does not seem like reliable source of odds during live events
 * How should project handle suspended or voided bets?
     * i.e. game was canceled or postponed
