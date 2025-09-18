@@ -42,7 +42,7 @@ As typically it is provided by client - it cannot be relied upon, as it can be s
 
 ### (not relevant) Idempotent requests 
 
-If we can make assumption, that there can be only one bet on one game per user, we can utilize PUT http method and make bet endpoint idempotent and returning existing bet, if i.e. combination of customer uuid and game uuid, are found in bets table. But it is in fact relevant, as this safeguard still depends on how we isolate concurrent database transactions underneath/do we use locking/if whole process is enclosed in transaction or only persisting changes etc. So, nice to have, but it has to be built on top of actual solution to stated problem. 
+If we can make assumption, that there can be only one bet on one game per user, we can utilize PUT http method and make bet endpoint idempotent and returning existing bet, if i.e. combination of customer uuid and game uuid, are found in bets table. But it is in fact not relevant, as this safeguard still depends on how we isolate concurrent database transactions underneath/do we use locking/if whole process is enclosed in transaction or only persisting changes etc. So, nice to have, but it has to be built on top of actual solution to stated problem. 
 
 ### (not relevant) Balance constraints on database level
 
@@ -54,7 +54,7 @@ What database is per spec required to do on SERIALIZABLE transaction isolation l
 
 Which, solves our problem IF WE CAN GUARANTEE that all relevant reads and writes are in fact enclosed in the same transaction. Otherwise, update might be based on the stale data provided from outside transaction and our problem persists. 
 
-But, as there is no free lunches, SERIALIZABLE transaction come with heavy performance overhead and effectively introduce locks that might create serialization failures, that require retry strategy.
+But, as there is no free lunches, SERIALIZABLE transaction effectively introduce locks underneath which introduce heavy performance overhead (establishing multiple locks, waiting queries), additional complexity (serialization conflicts needs to be resolved).
 
 It leads to the architectural problem, as if our business proces is complex and hits i.e. other services, ours or vendor (I recall that at least one country in EU that has regulations requiring checking public api for gamblers that are banned from engaging with online hazard), we get a long-running SERIALIZABLE transaction. Which compounds problems related to both. 
 
@@ -76,22 +76,23 @@ It is not a lock. It is a check if underlying data changed in the meantime using
 ## Solution
 
 ### Assumptions
-* We do solve stated problem in context of possibility of multiple concurrent updates regarding ONE CUSTOMER. 
-* If in doubt fail - when it comes to financial operations, not doing potentially wrong thing, and allowing customer service to handle potential problems manualy is much safer than alternatives - we do not consider retries
-* We do want to keep our business logic in the unit-testable code - not in only integration/e2e testable database
+* We do solve stated problem of possibility of multiple concurrent requests in context of ONE CUSTOMER. 
+* If in doubt fail - when it comes to financial operations, not doing potentially wrong thing, and allowing customer service to handle potential problems manually is much safer than alternatives - we do not consider retries
+* We do want to keep our business logic in the code and avoid moving it to the database, which makes it harder to test, iterate over and maintain. 
 * We do not want to be limited when it comes to how complex logic will be run before any financial operation - which might i.e. require external api call 
-  * This means, that we do not want to enclose whole business process in transaction
+  * This means, that we *do not* want to enclose whole business process in transaction
     * As this have potential to create long-running transactions
+      * any transaction open for the duration of external http call can be considered long-running  
       * long-running transactions + pessimistic locking or SERIALIZABLE transactions = exponentially more problems to deal with
-  * This means, that we want to run only final update in transaction - not whole business process preceeding it
+  * This means, that we want to run only final update in transaction - not whole business process preceding it
     * This means, that we need a way to ensure our update is not based on stale data
       * This means, that optimistic locking is a way to go 
-        * But, as i.e. placing a bet requires multiple update operations (i.e. adding a bet, updating account balance, adding an audit trail?) update itself still needs to be atomic 
-          * So: 
+        * But, as i.e. placing a bet requires multiple write operations (i.e. adding a bet, updating account balance, adding an audit trail?) update itself still needs to be atomic 
+          * So:
+            * final update wrapped in transaction to preserve atomicity of operation 
             * optimistic locking to prevent updates based on a stale data 
             * random uuid as version - as integer ids create additional edge cases
             * business process do not have to be wrapped in transaction
-            * final update wrapped in transaction to preserve atomicity of operation 
             * default isolation level (read commited) should be sufficient considering we depend on version field, which produces result similar to SERIALIZABLE transactions. 
 
 Example illustrating concept

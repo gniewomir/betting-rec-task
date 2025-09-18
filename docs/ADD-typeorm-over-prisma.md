@@ -35,6 +35,6 @@
   * On the market for the last 7 years
     * TypedSQL a year or two? 
 
-Overall impression is, that Prisma solves problems for fast prototyping, but for production problems it offers half-baked solutions, that work reliably only with assumption that you are doing simple things in a simple way. 
+Overall impression is, that Prisma solves problems for fast prototyping, but for production problems it offers half-baked solutions, that work reliably only with assumption that you are doing simple things in a simple way or are willing to work around limitations. 
 
 What could skew the scales a bit back towards prisma is potential assumption, that separate database will be used by data team.

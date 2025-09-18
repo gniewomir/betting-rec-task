@@ -19,4 +19,4 @@
   * separation of businesses and technical concerns 
   * knowledge preservation
   * increased security and robustness of code - thanks to assertion and tests heavy, domain first approach it brings
-* As problem domain seems to be heavier on business process complexity - because of regualated domain, than technical complexity - benefits of separate domain layer seems to outweigh cons
+* As problem domain seems to be heavier on business process complexity - because of regulated domain, than technical complexity - benefits of separate domain layer seems to outweigh cons
