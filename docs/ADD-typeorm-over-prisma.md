@@ -5,7 +5,7 @@
 ### Assumptions 
 * Not considering ORMs that was not mentioned in original task like Drizzle, MicroORM, Sequelize etc. 
 * Considering problem domain, there will be a need for heavily optimised raw sql queries when it comes to reporting and analytics 
-* Considering problem domain, there will be a need for row level locking to ensure atomicity of updates
+* Considering problem domain, there might be a need for row level locking to prevent race conditions
 * Maturity is more important than convenience for production code 
 * Partial solutions enforce ugly hacks that are hard to understand later
 * No separate database like Google Big Query for analytics and reporting
@@ -22,6 +22,7 @@
     * does not contain half-solutions for raw SQL queries 
       * bad: you do not get any type safety when running raw sql 
       * good: getting type safe result, does not drive your query design like in TypedSQL case which sometimes provides type safety as long you do not use all features of the underlying database
+      * reality: outside recruitment task, reporting and analytics will be probably delegated to separate database accessible for data team directly 
 * There will be a need for row level locks 
   * TypeORM - possibile both via query builder and raw SQL 
   * Prisma - experimental feature or raw queries 
